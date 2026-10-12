@@ -1,8 +1,10 @@
 import '../models/donor_models.dart';
 import '../models/patient_models.dart';
 import '../models/hospital_models.dart';
-import '../services/mock_data_service.dart';
-import 'file_download_stub.dart' if (dart.library.html) 'file_download_web.dart' as platform_downloader;
+import 'mock_data_service.dart';
+import 'file_download_stub.dart'
+    if (dart.library.html) 'file_download_web.dart'
+    as platform_downloader;
 
 /// Universal file generation and download service for VitalPulse.
 /// Generates realistic, fully formatted printable HTML receipts, donor cards, certificates,
@@ -22,8 +24,12 @@ class FileDownloadService {
   }
 
   /// 1. Real Official Donation & Recipient Allocation Receipt (.html / Printable)
-  static void downloadDonationReceipt(DonorHistoryRecord rec, DonorProfileModel donor) {
-    final html = '''
+  static void downloadDonationReceipt(
+    DonorHistoryRecord rec,
+    DonorProfileModel donor,
+  ) {
+    final html =
+        '''
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -100,7 +106,8 @@ class FileDownloadService {
 
   /// 2. Real Digital Donor Card (.html / Printable Wallet Card)
   static void downloadDonorCard(DonorProfileModel donor) {
-    final html = '''
+    final html =
+        '''
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -155,35 +162,56 @@ class FileDownloadService {
   }
 
   /// 3. Real Donor Certificate of Appreciation (.html / Printable Certificate)
-  static void downloadCertificate(DonorProfileModel donor, {DonorCertificateModel? cert}) {
-    final donorName = (cert != null && cert.donorName.trim().isNotEmpty) ? cert.donorName.trim() : donor.name;
-    final bloodGroup = (cert != null && cert.bloodGroup.trim().isNotEmpty) ? cert.bloodGroup.trim() : donor.bloodType.label;
+  static void downloadCertificate(
+    DonorProfileModel donor, {
+    DonorCertificateModel? cert,
+  }) {
+    final donorName = (cert != null && cert.donorName.trim().isNotEmpty)
+        ? cert.donorName.trim()
+        : donor.name;
+    final bloodGroup = (cert != null && cert.bloodGroup.trim().isNotEmpty)
+        ? cert.bloodGroup.trim()
+        : donor.bloodType.label;
     final units = cert?.unitsDonated ?? donor.totalUnitsDonated;
-    final sessions = donor.totalDonations > 0 ? donor.totalDonations : (units > 0 ? (units / 1).ceil() : 1);
-    final location = (cert != null && cert.centerName.trim().isNotEmpty) ? cert.centerName.trim() : donor.location;
-    final certTitle = (cert != null && cert.customTitle.trim().isNotEmpty) ? cert.customTitle.trim() : 'VITALPULSE NATIONAL LIFE-SAVER AWARD';
+    final sessions = donor.totalDonations > 0
+        ? donor.totalDonations
+        : (units > 0 ? (units / 1).ceil() : 1);
+    final location = (cert != null && cert.centerName.trim().isNotEmpty)
+        ? cert.centerName.trim()
+        : donor.location;
+    final certTitle = (cert != null && cert.customTitle.trim().isNotEmpty)
+        ? cert.customTitle.trim()
+        : 'VITALPULSE NATIONAL LIFE-SAVER AWARD';
     final pledge = (cert != null && cert.customPledgeMessage.trim().isNotEmpty)
         ? cert.customPledgeMessage.trim()
         : 'In grateful recognition of voluntary, selfless contributions of life-saving whole blood. Your noble generosity has directly saved critical lives.';
-    final sigTitle = (cert != null && cert.signatureTitle.trim().isNotEmpty) ? cert.signatureTitle.trim() : 'Dr. Radhika Menon, MD • Director of Transfusion Medicine';
-    final certId = cert?.certificateId ?? 'CERT-VP-2026-${donor.id.hashCode.abs() % 9000 + 1000}';
+    final sigTitle = (cert != null && cert.signatureTitle.trim().isNotEmpty)
+        ? cert.signatureTitle.trim()
+        : 'Dr. Radhika Menon, MD • Director of Transfusion Medicine';
+    final certId =
+        cert?.certificateId ??
+        'CERT-VP-2026-${donor.id.hashCode.abs() % 9000 + 1000}';
     final theme = cert?.certificateTheme ?? 'Gold Royal';
 
     // Theme Primary Color
     String themeColor = '#d4a017';
     String themeBorder = '#b8860b';
-    if (theme.toLowerCase().contains('sapphire') || theme.toLowerCase().contains('clinical')) {
+    if (theme.toLowerCase().contains('sapphire') ||
+        theme.toLowerCase().contains('clinical')) {
       themeColor = '#0284c7';
       themeBorder = '#0369a1';
-    } else if (theme.toLowerCase().contains('emerald') || theme.toLowerCase().contains('vitality')) {
+    } else if (theme.toLowerCase().contains('emerald') ||
+        theme.toLowerCase().contains('vitality')) {
       themeColor = '#059669';
       themeBorder = '#047857';
-    } else if (theme.toLowerCase().contains('platinum') || theme.toLowerCase().contains('minimal')) {
+    } else if (theme.toLowerCase().contains('platinum') ||
+        theme.toLowerCase().contains('minimal')) {
       themeColor = '#475569';
       themeBorder = '#334155';
     }
 
-    final html = '''
+    final html =
+        '''
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -254,14 +282,19 @@ class FileDownloadService {
     buffer.writeln('Facility Name,${mockService.bankProfile.name}');
     buffer.writeln('Location,${mockService.bankProfile.address}');
     buffer.writeln('');
-    buffer.writeln('Blood Group,Available Units,Reserved Units,Total Units,Safety Status,Storage Vault');
+    buffer.writeln(
+      'Blood Group,Available Units,Reserved Units,Total Units,Safety Status,Storage Vault',
+    );
 
     for (final item in mockService.bankInventory) {
-      buffer.writeln('${item.bloodType.label},${item.availableUnits},${item.reservedUnits},${item.totalUnits},${item.status.label},${item.storageLocation}');
+      buffer.writeln(
+        '${item.bloodType.label},${item.availableUnits},${item.reservedUnits},${item.totalUnits},${item.status.label},${item.storageLocation}',
+      );
     }
 
     saveFile(
-      filename: 'BloodBank_Inventory_Audit_${DateTime.now().year}_${DateTime.now().month}.csv',
+      filename:
+          'BloodBank_Inventory_Audit_${DateTime.now().year}_${DateTime.now().month}.csv',
       content: buffer.toString(),
       mimeType: 'text/csv',
     );
@@ -269,11 +302,21 @@ class FileDownloadService {
 
   /// 5. Real Blood Bank Operations & Inventory Audit Report (.html / Printable)
   static void downloadBloodBankReport(MockDataService mockService) {
-    final totalUnits = mockService.bankInventory.fold<int>(0, (sum, i) => sum + i.totalUnits);
-    final availUnits = mockService.bankInventory.fold<int>(0, (sum, i) => sum + i.availableUnits);
-    final resUnits = mockService.bankInventory.fold<int>(0, (sum, i) => sum + i.reservedUnits);
+    final totalUnits = mockService.bankInventory.fold<int>(
+      0,
+      (sum, i) => sum + i.totalUnits,
+    );
+    final availUnits = mockService.bankInventory.fold<int>(
+      0,
+      (sum, i) => sum + i.availableUnits,
+    );
+    final resUnits = mockService.bankInventory.fold<int>(
+      0,
+      (sum, i) => sum + i.reservedUnits,
+    );
 
-    final html = '''
+    final html =
+        '''
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -347,7 +390,8 @@ class FileDownloadService {
 ''';
 
     saveFile(
-      filename: 'VitalPulse_BloodBank_Operations_Report_${DateTime.now().year}_${DateTime.now().month}.html',
+      filename:
+          'VitalPulse_BloodBank_Operations_Report_${DateTime.now().year}_${DateTime.now().month}.html',
       content: html,
       mimeType: 'text/html',
     );
@@ -361,12 +405,16 @@ class FileDownloadService {
     buffer.writeln('State Blood Transfusion Council ID,SBTC-TEL-2026-981');
     buffer.writeln('Facility Name,${mockService.bankProfile.name}');
     buffer.writeln('');
-    buffer.writeln('Batch ID,Component Type,Blood Group,Volume (mL),Collection Date,Expiry Date,Serology Status,Location Barcode');
+    buffer.writeln(
+      'Batch ID,Component Type,Blood Group,Volume (mL),Collection Date,Expiry Date,Serology Status,Location Barcode',
+    );
 
     final bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
     int idx = 101;
     for (final bg in bloodTypes) {
-      buffer.writeln('BATCH-2026-$idx,Whole Blood,$bg,450,2026-09-15,2026-10-20,HIV/HBV/HCV Negative,BAR-$bg-$idx');
+      buffer.writeln(
+        'BATCH-2026-$idx,Whole Blood,$bg,450,2026-09-15,2026-10-20,HIV/HBV/HCV Negative,BAR-$bg-$idx',
+      );
       idx++;
     }
 
@@ -380,18 +428,32 @@ class FileDownloadService {
   /// 7. Real Hospital Transfusion Register Audit (CSV)
   static void downloadHospitalTransfusionAuditCsv(MockDataService mockService) {
     final buffer = StringBuffer();
-    buffer.writeln('Hospital Monthly Transfusion Audit & Surgery Allocation Register');
+    buffer.writeln(
+      'Hospital Monthly Transfusion Audit & Surgery Allocation Register',
+    );
     buffer.writeln('Facility,Apollo Multi-Specialty Hospital Jubilee Hills');
     buffer.writeln('Reporting Period,September 2026');
     buffer.writeln('NABH Compliance,Accredited Grade A');
     buffer.writeln('');
-    buffer.writeln('Requisition ID,Patient Name,Blood Group,Units Transfused,Department,Attending Surgeon,Cross-Match Status,Transfusion Timestamp');
+    buffer.writeln(
+      'Requisition ID,Patient Name,Blood Group,Units Transfused,Department,Attending Surgeon,Cross-Match Status,Transfusion Timestamp',
+    );
 
-    buffer.writeln('REQ-9012,Priya Sharma,O-,1,Cardiovascular ICU,Dr. Radhika Menon,COMPATIBLE 100%,2026-09-28 14:30');
-    buffer.writeln('REQ-8891,Rohan Varma,O-,1,Emergency Trauma,Dr. Arvind Mehra,COMPATIBLE 100%,2026-09-24 11:15');
-    buffer.writeln('REQ-8734,Aarohi Sen,O-,1,Oncology Day Care,Dr. Suresh Varma,COMPATIBLE 100%,2026-09-20 16:45');
-    buffer.writeln('REQ-8512,Kabir Mukherjee,O-,1,Orthopedic Surgery,Dr. Neha Kapoor,COMPATIBLE 100%,2026-09-16 09:20');
-    buffer.writeln('REQ-8420,Ananya Iyer,A+,2,General Surgery,Dr. Vikram Seth,COMPATIBLE 100%,2026-09-12 18:00');
+    buffer.writeln(
+      'REQ-9012,Priya Sharma,O-,1,Cardiovascular ICU,Dr. Radhika Menon,COMPATIBLE 100%,2026-09-28 14:30',
+    );
+    buffer.writeln(
+      'REQ-8891,Rohan Varma,O-,1,Emergency Trauma,Dr. Arvind Mehra,COMPATIBLE 100%,2026-09-24 11:15',
+    );
+    buffer.writeln(
+      'REQ-8734,Aarohi Sen,O-,1,Oncology Day Care,Dr. Suresh Varma,COMPATIBLE 100%,2026-09-20 16:45',
+    );
+    buffer.writeln(
+      'REQ-8512,Kabir Mukherjee,O-,1,Orthopedic Surgery,Dr. Neha Kapoor,COMPATIBLE 100%,2026-09-16 09:20',
+    );
+    buffer.writeln(
+      'REQ-8420,Ananya Iyer,A+,2,General Surgery,Dr. Vikram Seth,COMPATIBLE 100%,2026-09-12 18:00',
+    );
 
     saveFile(
       filename: 'Hospital_Monthly_Transfusion_Audit_Sep2026.csv',
@@ -401,9 +463,13 @@ class FileDownloadService {
   }
 
   /// 8. Real Patient Transfusion Medical Record File (CSV + HTML Printable)
-  static void downloadPatientTransfusionRecords(MockDataService mockService, [PatientProfile? patient]) {
+  static void downloadPatientTransfusionRecords(
+    MockDataService mockService, [
+    PatientProfile? patient,
+  ]) {
     final p = patient ?? mockService.patientProfile;
-    final html = '''
+    final html =
+        '''
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -488,15 +554,20 @@ class FileDownloadService {
 ''';
 
     saveFile(
-      filename: 'VitalPulse_Transfusion_Audit_${p.name.replaceAll(' ', '_')}.html',
+      filename:
+          'VitalPulse_Transfusion_Audit_${p.name.replaceAll(' ', '_')}.html',
       content: html,
       mimeType: 'text/html',
     );
   }
 
   /// 9. Real Patient Requisition Slip (.html / Printable)
-  static void downloadPatientRequisitionSlip(PatientBloodRequestItem req, PatientProfile patient) {
-    final html = '''
+  static void downloadPatientRequisitionSlip(
+    PatientBloodRequestItem req,
+    PatientProfile patient,
+  ) {
+    final html =
+        '''
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -559,8 +630,12 @@ class FileDownloadService {
   }
 
   /// 10. Real Emergency SOS Incident Report (.html / Printable)
-  static void downloadSOSIncidentReport(EmergencySOSRequest sos, PatientProfile patient) {
-    final html = '''
+  static void downloadSOSIncidentReport(
+    EmergencySOSRequest sos,
+    PatientProfile patient,
+  ) {
+    final html =
+        '''
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -621,43 +696,60 @@ class FileDownloadService {
   /// 11. Real Hospital Blood Inventory CSV
   static void downloadHospitalInventoryCsv(MockDataService mockService) {
     final buffer = StringBuffer();
-    buffer.writeln('Hospital Blood Inventory Audit Ledger - VitalPulse Clinical Grid');
+    buffer.writeln(
+      'Hospital Blood Inventory Audit Ledger - VitalPulse Clinical Grid',
+    );
     buffer.writeln('Hospital,${mockService.hospitalName}');
     buffer.writeln('License ID,${mockService.hospitalLicenseId}');
     buffer.writeln('Location,${mockService.hospitalLocation}');
     buffer.writeln('Export Timestamp,${DateTime.now().toIso8601String()}');
     buffer.writeln('');
-    buffer.writeln('Blood Group,Available Units,Reserved Units,Used Units (30D),Expiring (7D),Total Active,Status');
+    buffer.writeln(
+      'Blood Group,Available Units,Reserved Units,Used Units (30D),Expiring (7D),Total Active,Status',
+    );
 
     mockService.hospitalInventory.forEach((type, group) {
       final total = group.availableUnits + group.reservedUnits;
-      final status = group.isCritical ? 'CRITICAL DEFICIT' : (group.isLowStock ? 'LOW STOCK' : 'ADEQUATE');
-      buffer.writeln('${type.label},${group.availableUnits},${group.reservedUnits},${group.usedUnits},${group.expiringUnits},$total,$status');
+      final status = group.isCritical
+          ? 'CRITICAL DEFICIT'
+          : (group.isLowStock ? 'LOW STOCK' : 'ADEQUATE');
+      buffer.writeln(
+        '${type.label},${group.availableUnits},${group.reservedUnits},${group.usedUnits},${group.expiringUnits},$total,$status',
+      );
     });
 
     saveFile(
-      filename: 'Hospital_Blood_Inventory_${DateTime.now().year}_${DateTime.now().month}_${DateTime.now().day}.csv',
+      filename:
+          'Hospital_Blood_Inventory_${DateTime.now().year}_${DateTime.now().month}_${DateTime.now().day}.csv',
       content: buffer.toString(),
       mimeType: 'text/csv',
     );
   }
 
   /// 12. Real Hospital Patient Requisitions CSV
-  static void downloadHospitalPatientRequisitionsCsv(MockDataService mockService) {
+  static void downloadHospitalPatientRequisitionsCsv(
+    MockDataService mockService,
+  ) {
     final buffer = StringBuffer();
     buffer.writeln('Hospital Inpatient Blood Requisition Register');
     buffer.writeln('Facility,${mockService.hospitalName}');
     buffer.writeln('Export Date,${DateTime.now().toIso8601String()}');
     buffer.writeln('');
-    buffer.writeln('Requisition ID,Patient Ref,Patient Name,Ward/Department,Blood Group,Units Required,Units Assigned,Priority,Required Date,Status,Clinical Directives');
+    buffer.writeln(
+      'Requisition ID,Patient Ref,Patient Name,Ward/Department,Blood Group,Units Required,Units Assigned,Priority,Required Date,Status,Clinical Directives',
+    );
 
     for (final req in mockService.hospitalRequests) {
-      final reqDate = '${req.requiredDateTime.day}/${req.requiredDateTime.month}/${req.requiredDateTime.year}';
-      buffer.writeln('${req.id},${req.patientRefId},"${req.patientName}","${req.departmentOrWard}",${req.bloodType.label},${req.unitsRequired},${req.assignedUnits},${req.priority.name.toUpperCase()},$reqDate,${req.status.label},"${req.clinicalNotes ?? ''}"');
+      final reqDate =
+          '${req.requiredDateTime.day}/${req.requiredDateTime.month}/${req.requiredDateTime.year}';
+      buffer.writeln(
+        '${req.id},${req.patientRefId},"${req.patientName}","${req.departmentOrWard}",${req.bloodType.label},${req.unitsRequired},${req.assignedUnits},${req.priority.name.toUpperCase()},$reqDate,${req.status.label},"${req.clinicalNotes ?? ''}"',
+      );
     }
 
     saveFile(
-      filename: 'Hospital_Patient_Requisitions_${DateTime.now().year}_${DateTime.now().month}.csv',
+      filename:
+          'Hospital_Patient_Requisitions_${DateTime.now().year}_${DateTime.now().month}.csv',
       content: buffer.toString(),
       mimeType: 'text/csv',
     );
@@ -674,7 +766,8 @@ class FileDownloadService {
       totalUsed += g.usedUnits;
     });
 
-    final html = '''
+    final html =
+        '''
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -783,15 +876,20 @@ class FileDownloadService {
 ''';
 
     saveFile(
-      filename: 'Hospital_Clinical_Transfusion_Report_${DateTime.now().year}_${DateTime.now().month}.html',
+      filename:
+          'Hospital_Clinical_Transfusion_Report_${DateTime.now().year}_${DateTime.now().month}.html',
       content: html,
       mimeType: 'text/html',
     );
   }
 
   /// 14. Real Hospital Patient Requisition Slip (.html / Printable)
-  static void downloadHospitalRequisitionSlip(HospitalPatientBloodRequest req, MockDataService mockService) {
-    final html = '''
+  static void downloadHospitalRequisitionSlip(
+    HospitalPatientBloodRequest req,
+    MockDataService mockService,
+  ) {
+    final html =
+        '''
 <!DOCTYPE html>
 <html lang="en">
 <head>
